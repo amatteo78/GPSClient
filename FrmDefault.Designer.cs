@@ -217,6 +217,7 @@
             this.Name = "FrmDefault";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GPS Client NMEA";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmDefault_FormClosing);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

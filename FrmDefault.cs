@@ -147,6 +147,8 @@ namespace GPSClient
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            //Change bool state to Stop stream
+            boolStop = true;
             Application.Exit();
         }
 
@@ -164,6 +166,7 @@ namespace GPSClient
 
         private void btnStop_Click(object sender, EventArgs e)
         {
+            //Change bool state to Stop stream
             boolStop = true;
             btnStart.Enabled = true;
         }
@@ -172,6 +175,12 @@ namespace GPSClient
         {
             FrmInfo frmInfo = new FrmInfo();
             frmInfo.ShowDialog();
+        }
+
+        private void FrmDefault_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //Change bool state to Stop stream
+            boolStop = true;
         }
     }
 }

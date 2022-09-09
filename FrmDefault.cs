@@ -108,12 +108,12 @@ namespace GPSClient
                                     //Convert to DDD.MMMMM
                                     if (String.IsNullOrEmpty(arrLatLong[1]))
                                     {
-                                        Lat = "Lat - No Signal GPS";
+                                        Lat = "Lat - GPS No Signal";
                                     } else
                                     Lat = arrLatLong[1].Substring(0, 2) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[1].Substring(2, 8)) / 60);
                                     if (String.IsNullOrEmpty(arrLatLong[3]))
                                     {
-                                        Long = "Long - No Signal GPS";
+                                        Long = "Long - GPS No Signal";
                                     } else
                                     Long = arrLatLong[3].Substring(2, 1) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[3].Substring(3, 8)) / 60);
                                     txtLat.Invoke(new Action(() =>

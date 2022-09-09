@@ -103,9 +103,19 @@ namespace GPSClient
                                     //Format string NMEA Standard to keep Lat and Long, Index 1 for Lat and Index 3 for Long
                                     string LatLong = data.ToString();
                                     string[] arrLatLong = LatLong.Split(",");
+                                    string Lat;
+                                    string Long;
                                     //Convert to DDD.MMMMM
-                                    string Lat = arrLatLong[1].Substring(0, 2) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[1].Substring(2, 8)) / 60);
-                                    string Long = arrLatLong[3].Substring(2, 1) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[3].Substring(3, 8)) / 60);
+                                    if (String.IsNullOrEmpty(arrLatLong[1]))
+                                    {
+                                        Lat = "Lat - No Signal GPS";
+                                    } else
+                                    Lat = arrLatLong[1].Substring(0, 2) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[1].Substring(2, 8)) / 60);
+                                    if (String.IsNullOrEmpty(arrLatLong[3]))
+                                    {
+                                        Long = "Long - No Signal GPS";
+                                    } else
+                                    Long = arrLatLong[3].Substring(2, 1) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[3].Substring(3, 8)) / 60);
                                     txtLat.Invoke(new Action(() =>
                                     {
                                         //Read index 1 for keep Lat + 2 for N
@@ -129,7 +139,7 @@ namespace GPSClient
 
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
                             btnStart.Invoke(new Action(() =>
                             {
@@ -137,7 +147,8 @@ namespace GPSClient
                             }));
                             streamReader.Close();
                             tcpClient.Close();
-                            MessageBox.Show("Problem Occured !!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            //MessageBox.Show("Problem Occured !!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            MessageBox.Show(ex.ToString());
                         }
                     }
                 }

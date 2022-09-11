@@ -147,8 +147,8 @@ namespace GPSClient
                             }));
                             streamReader.Close();
                             tcpClient.Close();
-                            //MessageBox.Show("Problem Occured !!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            MessageBox.Show(ex.ToString());
+                            MessageBox.Show("Problem Occured !!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            //MessageBox.Show(ex.ToString());
                         }
                     }
                 }

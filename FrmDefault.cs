@@ -139,7 +139,7 @@ namespace GPSClient
 
                             }
                         }
-                        catch (Exception ex)
+                        catch //(Exception ex)
                         {
                             btnStart.Invoke(new Action(() =>
                             {

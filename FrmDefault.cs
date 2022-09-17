@@ -1,15 +1,5 @@
-using System;
-using System.ComponentModel;
-using System.Diagnostics.SymbolStore;
-using System.Drawing.Text;
-using System.IO;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Reflection.Emit;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using static System.Net.WebRequestMethods;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace GPSClient
 {
@@ -22,38 +12,35 @@ namespace GPSClient
         {
             InitializeComponent();
             txtPort.Text = "5005";
-            
         }
 
-        public bool IsValidIP(string addr) //Check if IP is Valid
+        public static bool IsValidIP(string addr) //Check if IP is Valid
         {
             //Create our Regular Expression object
-            Regex check = new Regex("^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-            //Boolean variable to hold the status
-            bool valid = false;
+            Regex check = new ("^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+            
             //Check to make sure an ip address was provided
             if (addr == "")
             {
                 //No address provided so return false
-                valid = false;
+                return false;
             }
             else
             {
                 //Address provided so use the IsMatch Method
                 //Of the Regular Expression object
-                valid = check.IsMatch(addr, 0);
+                return check.IsMatch(addr, 0);
             }
-            //Return the results
-            return valid;
         }
 
         private void ReceiveDataGPS()
         {
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 //Inizialize TcpCLient
-                TcpClient tcpClient = new TcpClient();
+                TcpClient tcpClient = new();
                 //Check if IP Address and Port are present
-                if (String.IsNullOrEmpty(txtGpsServer.Text) || String.IsNullOrEmpty(txtPort.Text))
+                if (string.IsNullOrEmpty(txtGpsServer.Text) || string.IsNullOrEmpty(txtPort.Text))
                 {
                     MessageBox.Show("GPS Server IP Address and/or Port can't be Empty", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
@@ -68,9 +55,11 @@ namespace GPSClient
                     {
                         btnStart.Enabled = false;
                     }));
+
                     //Estabilish connection and check if it's valid
-                    var resultConn = tcpClient.BeginConnect(txtGpsServer.Text, Convert.ToInt16(txtPort.Text), null, null);
-                    var resultSuccess = resultConn.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                    IAsyncResult? resultConn = tcpClient.BeginConnect(txtGpsServer.Text, Convert.ToInt16(txtPort.Text), null, null);
+                    bool resultSuccess = resultConn.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+
                     if (!resultSuccess)
                     {
                         MessageBox.Show("Failed to connect !!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -81,13 +70,12 @@ namespace GPSClient
                     }
                     else
                     {
-                        
                         //Start capture stream from GPS Server
-                        StreamReader streamReader = new StreamReader(tcpClient.GetStream());
+                        StreamReader streamReader = new(tcpClient.GetStream());
                         try
                         {
                             //Read line by line and print each one in txtBox like debug
-                            var data = streamReader.ReadLine();
+                            string? data = streamReader.ReadLine();
                             while (data != null)
                             {
                                 txtResult.Invoke(new Action(() =>
@@ -97,6 +85,7 @@ namespace GPSClient
                                     txtResult.ScrollToCaret();
                                     txtResult.Refresh();
                                 }));
+
                                 //Read lines start with "$GPGLL" to keep Lat and Long, then I'll copy them in boxs Lat and Long
                                 if (data.StartsWith("$GPGLL"))
                                 {
@@ -105,34 +94,52 @@ namespace GPSClient
                                     string[] arrLatLong = LatLong.Split(",");
                                     string Lat;
                                     string Long;
-                                    //Convert to DDD.MMMMM
-                                    if (String.IsNullOrEmpty(arrLatLong[1]))
+
+                                    if (string.IsNullOrEmpty(arrLatLong[1]))
                                     {
                                         Lat = "Lat - GPS No Signal";
-                                    } else
-                                    Lat = arrLatLong[1].Substring(0, 2) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[1].Substring(2, 8)) / 60);
-                                    if (String.IsNullOrEmpty(arrLatLong[3]))
+                                    }
+                                    else
+                                    {
+                                        string latValue = (Convert.ToDecimal(arrLatLong[1].Substring(2, 8)) / 60).ToString();
+                                        Lat = arrLatLong[1][..2] + "." + latValue[(latValue.IndexOf('.') + 1)..];
+                                    }
+
+                                    if (string.IsNullOrEmpty(arrLatLong[3]))
                                     {
                                         Long = "Long - GPS No Signal";
-                                    } else
-                                    Long = arrLatLong[3].Substring(2, 1) + "." + Decimal.Truncate(Convert.ToDecimal(arrLatLong[3].Substring(3, 8)) / 60);
+                                    }
+                                    else
+                                    {
+                                        string longValue = (Convert.ToDecimal(arrLatLong[3].Substring(3, 8)) / 60).ToString();
+                                        Long = arrLatLong[3].Substring(2, 1) + "." + longValue[(longValue.IndexOf('.') + 1)..];
+                                    }
+
+                                    //If South or West put a minus before the value.
+                                    Lat = arrLatLong[2] == "S" ? ("-" + Lat) : Lat;
+                                    Long = arrLatLong[4] == "W" ? ("-" + Long) : Long;
+
+                                    //Converting to decimal to setting a format.
+                                    Lat = Convert.ToDecimal(Lat).ToString("00.00000");
+                                    Long = Convert.ToDecimal(Long).ToString("000.00000");
+
                                     txtLat.Invoke(new Action(() =>
                                     {
                                         //Read index 1 for keep Lat + 2 for N
-                                        txtLat.Text = Lat + arrLatLong[2];
+                                        txtLat.Text = Lat;
                                     }));
                                     txtLong.Invoke(new Action(() =>
                                     {
                                         //Read index 3 for keep Long + 4 for E
-                                        txtLong.Text = Long + arrLatLong[4];
+                                        txtLong.Text = Long;
                                     }));
-
                                 }
                                 data = streamReader.ReadLine();
+
                                 //Check variable Stop, if true stop Stream and close Tcpclient
                                 if (boolStop)
                                 {
-                                    streamReader.Close();   
+                                    streamReader.Close();
                                     tcpClient.Close();
                                     return;
                                 }
@@ -153,7 +160,7 @@ namespace GPSClient
                     }
                 }
             });
-            
+
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -184,7 +191,7 @@ namespace GPSClient
 
         private void infoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FrmInfo frmInfo = new FrmInfo();
+            FrmInfo frmInfo = new();
             frmInfo.ShowDialog();
         }
 

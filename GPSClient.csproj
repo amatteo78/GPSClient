@@ -7,8 +7,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Title>GPS Client NMEA</Title>
-    <AssemblyVersion>1.2.0.3</AssemblyVersion>
-    <FileVersion>1.2.0.3</FileVersion>
+    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <FileVersion>1.2.1.0</FileVersion>
     <ApplicationIcon>gpsico.ico</ApplicationIcon>
   </PropertyGroup>
 

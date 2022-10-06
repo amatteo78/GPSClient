@@ -17,8 +17,8 @@ namespace GPSClient
         public static bool IsValidIP(string addr) //Check if IP is Valid
         {
             //Create our Regular Expression object
-            Regex check = new ("^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-            
+            Regex check = new("^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+
             //Check to make sure an ip address was provided
             if (addr == "")
             {
@@ -101,8 +101,11 @@ namespace GPSClient
                                     }
                                     else
                                     {
-                                        string latValue = (Convert.ToDecimal(arrLatLong[1].Substring(2, 8)) / 60).ToString();
-                                        Lat = arrLatLong[1][..2] + "." + latValue[(latValue.IndexOf('.') + 1)..];
+                                        string BeforeDot = arrLatLong[1][..arrLatLong[1].IndexOf('.')];
+                                        string Degree = BeforeDot[..^2];
+                                        string Minutes = BeforeDot[^2..] + arrLatLong[1][arrLatLong[1].IndexOf('.')..];
+                                        string MinutesCalculated = (Convert.ToDecimal(Minutes) / 60).ToString();
+                                        Lat = Degree + "." + MinutesCalculated[(MinutesCalculated.IndexOf('.') + 1)..];
                                     }
 
                                     if (string.IsNullOrEmpty(arrLatLong[3]))
@@ -111,8 +114,11 @@ namespace GPSClient
                                     }
                                     else
                                     {
-                                        string longValue = (Convert.ToDecimal(arrLatLong[3].Substring(3, 8)) / 60).ToString();
-                                        Long = arrLatLong[3].Substring(2, 1) + "." + longValue[(longValue.IndexOf('.') + 1)..];
+                                        string BeforeDot = arrLatLong[3][..arrLatLong[3].IndexOf('.')];
+                                        string Degree = BeforeDot[..^2];
+                                        string Minutes = BeforeDot[^2..] + arrLatLong[3][arrLatLong[3].IndexOf('.')..];
+                                        string MinutesCalculated = (Convert.ToDecimal(Minutes) / 60).ToString();
+                                        Long = Degree + "." + MinutesCalculated[(MinutesCalculated.IndexOf('.') + 1)..];
                                     }
 
                                     //If South or West put a minus before the value.
@@ -120,8 +126,8 @@ namespace GPSClient
                                     Long = arrLatLong[4] == "W" ? ("-" + Long) : Long;
 
                                     //Converting to decimal to setting a format.
-                                    Lat = Convert.ToDecimal(Lat).ToString("00.00000");
-                                    Long = Convert.ToDecimal(Long).ToString("000.00000");
+                                    Lat = Convert.ToDecimal(Lat).ToString("00.000000");
+                                    Long = Convert.ToDecimal(Long).ToString("000.000000");
 
                                     txtLat.Invoke(new Action(() =>
                                     {
